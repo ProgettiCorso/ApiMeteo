@@ -2,7 +2,6 @@
 //  Meteo.swift
 //  ApiMeteo
 //
-//  Created by Andrea Ceroli on 14/11/17.
 //  Copyright © 2017 Fabio Ziviello. All rights reserved.
 //
 

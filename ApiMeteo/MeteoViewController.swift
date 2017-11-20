@@ -10,6 +10,8 @@ import UIKit
 
 class MeteoViewController: UIViewController {
     
+    @IBOutlet var meteoView: UIView!
+    @IBOutlet weak var backButton: UIButton!
     @IBOutlet weak var lblNomeCitta: UILabel!
     @IBOutlet weak var lblPrevDesc: UILabel!
     @IBOutlet weak var lblTemp: UILabel!
@@ -33,45 +35,32 @@ class MeteoViewController: UIViewController {
         
         oRequest.get {mystatus,myDict in
             
-            
-            DispatchQueue.main.async {
+            if(mystatus==200)
+            {
+                self.meteoView.isHidden = false
+                DispatchQueue.main.async {
+                    
+                    
+                    self.lblNomeCitta.text = self.oMeteo.getPrevisione(myDict).object(forKey: "nome") as? String
+                    self.lblTemp.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp") as! Double)
+                    self.lblTempMax.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp_max") as! Double)
+                    self.lblTempMin.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp_min") as! Double)
+                    self.lblPrevDesc.text = self.oMeteo.getPrevisione(myDict).object(forKey: "previsione_desc") as? String
+                    let icona = "http://openweathermap.org/img/w/" + (self.oMeteo.getPrevisione(myDict).object(forKey: "icona") as? String)! + ".png"
+                    let imageUrl:URL = URL(string: icona)!
+                    let data = try? Data(contentsOf: imageUrl)
+                    let image: UIImage = UIImage(data: data!)!
+                    self.imgIcona.image = image
+                }
                 
-                
-                //var a = self.oMeteo.getPrevisioneNow(myDict)
-                self.lblNomeCitta.text = self.oMeteo.getPrevisione(myDict).object(forKey: "nome") as? String
-//                self.lblLat.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "lat") as! Double)
-//                self.lblLong.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "long") as! Double)
-                self.lblTemp.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp") as! Double)
-                self.lblTempMax.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp_max") as! Double)
-                self.lblTempMin.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "temp_min") as! Double)
-//                self.lblUmidita.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "umidita") as! Double)
-                self.lblPrevDesc.text = self.oMeteo.getPrevisione(myDict).object(forKey: "previsione_desc") as? String
-//                self.lblVelVento.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "vel_vento") as! Double)
-//                self.lblPressione.text = String(describing: self.oMeteo.getPrevisione(myDict).object(forKey: "pressione") as! Double)
-                
-                let icona = "http://openweathermap.org/img/w/" + (self.oMeteo.getPrevisione(myDict).object(forKey: "icona") as? String)! + ".png"
-                let imageUrl:URL = URL(string: icona)!
-                
-                //let data: Data = try! Data(contentsOf: imageUrl)
-                let data = try? Data(contentsOf: imageUrl)
-                let image: UIImage = UIImage(data: data!)!
-                
-                self.imgIcona.image = image
-                
-                
-                
-//                let icona = "http://openweathermap.org/img/w/" + (self.oMeteo.getPrevisione(myDict).object(forKey: "icona") as? String)! + ".png"
-//                let imageUrl:URL = URL(string: icona)!
-//                
-//                
-//                let data = try? Data(contentsOf: imageUrl)
-//                let image: UIImage = UIImage(data: data!)!
-//                
-//                self.imgIcona.image = image
-                
-                //print(self.oRequest)
             }
-            
+            else
+            {
+                
+                let alert = UIAlertController(title: "Errore", message: "Città non trovata.", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: NSLocalizedString("Indietro", comment: "Default action"), style: .`default`, handler: self.indietro))
+                self.present(alert, animated: true, completion: nil)
+            }
         }
     }
     
@@ -79,15 +68,15 @@ class MeteoViewController: UIViewController {
         super.viewDidLoad()
         
         srcMeteoNow(citta)
-        
-        // Do any additional setup after loading the view.
-    }
+            }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
     
+    func indietro(alertAction: UIAlertAction!) {
+        self.backButton.sendActions(for: UIControlEvents.touchUpInside)
+    }
 
     /*
     // MARK: - Navigation
@@ -98,5 +87,4 @@ class MeteoViewController: UIViewController {
         // Pass the selected object to the new view controller.
     }
     */
-
 }
